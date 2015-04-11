@@ -1,0 +1,316 @@
+; ##################################
+; My emacs configuration file
+; #################################
+
+
+
+
+
+; #################################
+; User Interface customization
+; #################################
+
+;; ----------------
+;; Font Colouring and type
+
+;; By default turn on colorization.
+(require 'font-lock)
+
+(if (fboundp 'global-font-lock-mode)
+    (global-font-lock-mode t)
+  )
+
+;;(set-default-font "-*-fixed-medium-r-semicondensed-*-14-*-*-*-*-*-*-*")
+
+(setq font-lock-mode-maximum-decoration t)
+(setq font-lock-use-default-fonts nil)
+(setq font-lock-use-default-colors nil)
+(copy-face 'default 'font-lock-string-face)
+(set-face-foreground 'font-lock-string-face "Salmon")
+(copy-face 'italic 'font-lock-comment-face)
+(set-face-foreground 'font-lock-comment-face "Grey")
+(copy-face 'bold 'font-lock-function-name-face)
+(set-face-foreground 'font-lock-function-name-face "RoyalBlue1")
+(copy-face 'default 'font-lock-keyword-face)
+(set-face-foreground 'font-lock-keyword-face "LightSkyBlue3")
+(copy-face 'default 'font-lock-type-face)
+(set-face-foreground 'font-lock-type-face "gold1")
+(set-face-foreground 'bold-italic "RoyalBlue1")
+
+(make-face-bold 'bold-italic)
+
+(setq default-frame-alist
+      '(
+	(cursor-color . "yellow")
+	(cursor-type . box)
+	(foreground-color . "pale green")
+	(background-color . "black")
+        )
+      )
+
+(custom-set-faces
+  ;; custom-set-faces was added by Custom -- don't edit or cut/paste it!
+  ;; Your init file should contain only one such instance.
+ )
+
+;; Maximum decoration for all modes
+(setq font-lock-maximum-decoration t)
+
+;; ---------------
+;; Emacs Frame Size
+
+;; Set initial frame size
+;; In X, this should be set in .xsession or the file
+;; that initialise emacs program
+
+(setq initial-frame-alist '((top . 1) (left . 1) (width . 100) (height . 42)))
+
+;; Set time format
+(setq display-time-day-and-date t
+      display-time-24hr-format t)
+(display-time)
+
+;; Display the file name in the title bar as well
+(setq frame-title-format '("%b" (buffer-file-name ": %f")))
+
+;; Ignore the initial welcome message
+(setq inhibit-startup-message t)
+
+;; Prevent the password in the shell to be seen
+(add-hook 'comint-output-filter-functions 'comint-watch-for-password-prompt)
+
+;; Enable horizontal scroll
+;;(hscroll-global-mode)
+
+;; This is bound to C-x C-c so I dont accidentally close my emacs
+(defun no-way ()
+  (interactive)
+  (message "NO, You can't exit !"))
+
+(defun x-own-selection (s) (x-set-selection `PRIMARY s))
+(defun switch-to-other-buffer () (interactive) (switch-to-buffer (other-buffer)))
+
+(setq next-line-add-newlines nil)
+(setq-default indent-tabs-mode nil)
+(setq next-line-add-newlines nil)
+
+;; Automatic line-wrapping happens after column 80
+(setq-default fill-column 80)
+
+(delete-selection-mode t)
+
+
+; #################################
+; Shortcut keys customization
+; #################################
+
+
+;; Scroll Bar gets dragged by mouse butn 1
+(global-set-key [vertical-scroll-bar down-mouse-1] 'scroll-bar-drag)
+
+(global-set-key [f2] 'bookmark-jump)
+(global-set-key [f3] 'bookmark-set)
+(global-set-key [f5] 'split-window-horizontally)
+(global-set-key [f8] 'undo)
+(global-set-key [f9] 'compile)
+(global-set-key [f4] 'shell)   
+(global-set-key [f11] 'kill-buffer)
+(global-set-key [(meta control k)] 'comment-region) ;; comment region
+(global-set-key [(meta control i)] 'indent-region)  ;; indent region 
+(global-set-key [(shift insert)] '(lambda () (interactive) (insert (x-get-selection))))
+(global-set-key [(control insert)] '(lambda () (interactive) (x-own-selection (buffer-substring (point) (mark)))))
+(global-set-key [(control tab)] `switch-to-other-buffer)
+(global-set-key [(meta g)] `goto-line)
+(global-set-key [(meta O) ?H] 'beginning-of-line)
+(global-set-key [home] 'beginning-of-line)
+(global-set-key [(meta O) ?F] 'end-of-linef)
+(global-set-key [(meta control tab)] 'TeX-complete-symbol)
+(global-set-key [end] 'end-of-line) 
+
+(global-set-key "\C-z" 'undo)
+(global-set-key "\C-x\C-c" 'no-way)
+(global-set-key "\C-c\C-v\C-c" 'compile)
+(global-set-key "\C-c\C-z\C-s" 'speedbar-get-focus)
+
+
+
+
+
+
+
+; #################################
+; Workspace customization
+; #################################
+
+;; define the backup directory
+;(cond ((file-exists-p "C:\Windows\Temp")
+;       (setq auto-save-list-file-prefix "C:\Windows\Temp\.saves-")))
+
+;; Do not create backup files ending in ~
+(setq make-backup-files nil)
+
+;; ---------------
+;; Parenthesis Match
+
+;; Define function to match a parenthesis otherwise insert a %
+
+(global-set-key "%" 'match-paren)
+(defun match-paren (arg)
+  "Go to the matching parenthesis if on parenthesis otherwise insert %."
+  (interactive "p")
+  (cond ((looking-at "\\s\(") (forward-list 1) (backward-char 1))
+        ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
+        (t (self-insert-command (or arg 1)))))
+
+
+;; ---------------
+;; Transient mode
+
+;; Transient mark mode will highlight the region 
+;; where you selected (In mark mode)
+(setq transient-mark-mode 't)
+
+;; Allow access to system clipboard (useful in window environment)
+(setq x-select-enable-clipboard t)  
+
+;; Shift-arrows in windows
+(custom-set-variables
+  ;; custom-set-variables was added by Custom -- don't edit or cut/paste it!
+  ;; Your init file should contain only one such instance.
+ '(column-number-mode t)
+ '(compile-command (concat "javac " (buffer-file-name)) t)
+ '(frame-background-mode (quote dark))
+ '(line-number-mode t)
+ '(newsticker-url-list (quote (("heise" "http://www.heise.de/newsticker/heise.rdf" nil nil) ("qotd" "http://www.quotationspage.com/data/qotd.rss" "07:00" 86400) ("tagesschau" "http://www.tagesschau.de/newsticker.rdf" nil 1800) ("telepolis" "http://www.heise.de/tp/news.rdf" nil nil) ("wiki" "http://www.emacswiki.org/cgi-bin/wiki.pl?action=rss" nil 3600) ("theserverside" "http://www.theserverside.com/rss/theserverside-1.0.rdf" nil nil))))
+ '(pc-select-meta-moves-sexps t)
+ '(pc-select-selection-keys-only t)
+ '(pc-selection-mode t nil (pc-select))
+ '(speedbar-frame-parameters (quote ((minibuffer) (top . 1) (left . 825) (height . 45) (width . 22) (border-width . 0) (menu-bar-lines . 0) (unsplittable . t))))
+ '(toolbar-captioned-p nil)
+ '(toolbar-visible-p nil))
+
+
+;; ---------------
+;; DOS-UNIX and UNIX-DOS Utility
+ 
+;; Convert from DOS > UNIX
+(defun dos-unix ()
+  (interactive)
+    (goto-char (point-min))
+      (while (search-forward "\r" nil t) (replace-match "")))
+
+;; Convert from UNIX > DOS
+(defun unix-dos ()
+  (interactive)
+    (goto-char (point-min))
+      (while (search-forward "\n" nil t) (replace-match "\r\n")))
+
+;; By default we starting in text mode.
+(setq initial-major-mode
+      (lambda ()
+        (text-mode)
+        (turn-on-auto-fill)
+	(font-lock-mode)
+	))
+
+(setq revert-without-query (cons "TAGS" revert-without-query))
+
+
+
+
+
+
+
+; #################################
+; Working Environment/Context  customization
+; #################################
+
+;; More information with the info file (Control-h i)
+;; ENVIRONMENT SETTINGS
+
+
+;; MAIL and NEWS
+;(custom-set-variables
+; '(line-number-mode t)
+; '(rmail-pop-password-required t)
+; '(smtpmail-smtp-server "mail.biztone.com")
+; '(mail-host-address "mail.biztone.com")
+; '(smtpmail-local-domain "biztone.com")
+; '(smtpmail-default-smtp-server "mail.biztone.com")
+; '(user-mail-address "koh.zhao.hui@biztone.com")
+; )
+
+;(setq gnus-nntp-server "news.mlug.org.au")
+;;l(setq w3-configuration-directory "~/.w3")
+
+
+;; COMPILE AND DEVELOPMENT
+
+
+;; XML mode
+(autoload 'xml-mode "psgml" "Major mode to edit XML files." t)
+
+
+; ##############################
+; Custom configurations
+; ##############################
+
+;; save a list of open files in ~/.emacs.desktop
+;; save the desktop file automatically if it already exists
+;;(setq desktop-save 'if-exists)
+;;(desktop-save-mode 1)
+
+;; save a bunch of variables to the desktop file
+;; for lists specify the len of the maximal saved data also
+;; (setq desktop-globals-to-save
+;;       (append '((extended-command-history . 30)
+;;                  (file-name-history        . 100)
+;;                  (grep-history             . 30)
+;;                  (compile-history          . 30)
+;;                  (minibuffer-history       . 50)
+;;                  (query-replace-history    . 60)
+;;                  (read-expression-history  . 60)
+;;                  (regexp-history           . 60)
+;;                  (regexp-search-ring       . 20)
+;;                  (search-ring              . 20)
+;;                  (shell-command-history    . 50)
+;;                  tags-file-name
+;;                  register-alist)))
+
+
+
+
+; #################################
+; Additional library Customization
+; #################################
+
+;; Blogger API
+
+;(setq load-path  (cons (expand-file-name "c:/Development/emacs-21.3/addon/w3/lisp") load-path))
+;(require 'w3-auto)
+
+;(setq load-path  (cons (expand-file-name "c:/Development/emacs-21.3/addon/blogger") load-path))
+;(require 'newsticker)
+
+;(load-file "c:/Development/emacs-21.3/addon/blogger/weblogger.el")
+;(global-set-key "\C-cbs" 'weblogger-start-post)
+
+;; (setq load-path  (cons (expand-file-name "c:/Development/emacs-21.3/addon/blogger") load-path))
+;; (setq load-path  (cons (expand-file-name "c:/Development/emacs-21.3/addon/url") load-path))
+
+;; (load-file "c:/Development/emacs-21.3/addon/blogger/blogger.el")
+;; (global-set-key "\C-cbs" 'blogger-start-post)
+
+;; Backup Utility
+
+
+; #################################
+; Post/Final actions
+; #################################
+
+(desktop-load-default)
+(desktop-read)
+
+
+
+
